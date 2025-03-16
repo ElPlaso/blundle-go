@@ -3,7 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"strconv"
@@ -28,8 +31,14 @@ type puzzleData struct {
 }
 
 func main() {
+	envErr := godotenv.Load(".env")
+	if envErr != nil {
+		log.Fatalf("Error loading .env file: %s", envErr)
+	}
+
 	router := gin.Default()
 	router.GET("/daily-puzzle", getDailyPuzzle)
+	// router.POST("/puzzles", addPuzzle)
 
 	router.Run("localhost:8080")
 }
@@ -68,7 +77,7 @@ func getDailyPuzzle(c *gin.Context) {
 			return
 		}
 
-		parsedPuzzle := puzzleType{}
+		var parsedPuzzle puzzleType
 
 		puzzleErr := json.Unmarshal([]byte(puzzle), &parsedPuzzle)
 
@@ -93,15 +102,52 @@ func getDailyPuzzle(c *gin.Context) {
 	c.JSON(http.StatusNotFound, "Puzzle not found")
 }
 
-func connect() (*pgx.Conn, error) {
-	envErr := godotenv.Load(".env")
-	if envErr != nil {
-		log.Fatalf("Error loading .env file: %s", envErr)
-	}
+func addPuzzle(c *gin.Context) {
+	// TODO: Authenticate
+	// TODO: Get random puzzle and add to database
+}
 
+func connect() (*pgx.Conn, error) {
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, err
 	}
 	return conn, nil
+}
+
+func getRandomChessPuzzle() {
+	// get puzzle with 3 to 4 moves
+	numMoves := rand.IntN(4-3) + 3
+	url := fmt.Sprintf("https://chess-puzzles.p.rapidapi.com/?rating=2000&themesType=ALL&playerMoves=%d&count=1", numMoves)
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-rapidapi-key", os.Getenv("CHESS_PUZZLE_API_KEY"))
+	req.Header.Add("x-rapidapi-host", "chess-puzzles.p.rapidapi.com")
+
+	res, resErr := http.DefaultClient.Do(req)
+
+	if resErr != nil {
+		log.Println(resErr)
+		return
+	}
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	var parsedBody any
+
+	bodyErr := json.Unmarshal(body, &parsedBody)
+
+	if bodyErr != nil {
+		log.Println(bodyErr)
+		return
+		// TODO: Handle return
+	}
+
+	// puzzles := parsedBody.puzzles // TODO: Handle
+
+	// puzzle := puzzles[0]
+
+	// return puzzle
 }
