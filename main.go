@@ -38,24 +38,24 @@ func main() {
 
 	router := gin.Default()
 	router.GET("/daily-puzzle", getDailyPuzzle)
-	// router.POST("/puzzles", addPuzzle)
+	router.GET("/add-puzzle", addPuzzle)
 
 	router.Run("localhost:8080")
 }
 
 func getDailyPuzzle(c *gin.Context) {
-	db, err := connect()
+	db, dbErr := connect()
 
-	if err != nil {
-		log.Print(err)
+	if dbErr != nil {
+		log.Print(dbErr)
 		c.JSON(http.StatusInternalServerError, "Failed to connect to database")
 		return
 	}
 
 	// Get latest puzzle
-	rows, err := db.Query(context.Background(), "SELECT * FROM puzzle ORDER BY id DESC LIMIT 1")
-	if err != nil {
-		log.Print(err)
+	rows, queryErr := db.Query(context.Background(), "SELECT * FROM puzzle ORDER BY id DESC LIMIT 1")
+	if queryErr != nil {
+		log.Print(queryErr)
 		c.JSON(http.StatusInternalServerError, "Error querying database")
 		return
 	}
@@ -104,7 +104,26 @@ func getDailyPuzzle(c *gin.Context) {
 
 func addPuzzle(c *gin.Context) {
 	// TODO: Authenticate
-	// TODO: Get random puzzle and add to database
+	puzzle := getRandomChessPuzzle()
+
+	db, dbErr := connect()
+	if dbErr != nil {
+		log.Print(dbErr)
+		c.JSON(http.StatusInternalServerError, "Failed to connect to database")
+		return
+	}
+
+	// TODO: Fix formatting puzzle for database
+	// Add puzzle to db
+	rows, queryErr := db.Query(context.Background(), fmt.Sprintf(`INSERT INTO puzzle (puzzle) VALUES ('%s')`, puzzle))
+	if queryErr != nil {
+		log.Print(queryErr)
+		c.JSON(http.StatusInternalServerError, "Error querying database")
+		return
+	}
+	defer rows.Close()
+
+	c.JSON(http.StatusOK, "Added puzzle to database")
 }
 
 func connect() (*pgx.Conn, error) {
@@ -115,7 +134,7 @@ func connect() (*pgx.Conn, error) {
 	return conn, nil
 }
 
-func getRandomChessPuzzle() {
+func getRandomChessPuzzle() map[string]interface{} {
 	// get puzzle with 3 to 4 moves
 	numMoves := rand.IntN(4-3) + 3
 	url := fmt.Sprintf("https://chess-puzzles.p.rapidapi.com/?rating=2000&themesType=ALL&playerMoves=%d&count=1", numMoves)
@@ -129,25 +148,24 @@ func getRandomChessPuzzle() {
 
 	if resErr != nil {
 		log.Println(resErr)
-		return
+		return nil
 	}
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
 
-	var parsedBody any
+	var parsedBody map[string][]map[string]any
 
 	bodyErr := json.Unmarshal(body, &parsedBody)
 
 	if bodyErr != nil {
 		log.Println(bodyErr)
-		return
-		// TODO: Handle return
+		return nil
 	}
 
-	// puzzles := parsedBody.puzzles // TODO: Handle
+	puzzles := parsedBody["puzzles"]
 
-	// puzzle := puzzles[0]
+	puzzle := puzzles[0]
 
-	// return puzzle
+	return puzzle
 }
