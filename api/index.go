@@ -17,7 +17,7 @@ func init() {
 	app.GET("/api/daily-puzzle", GetDailyPuzzle)
 	app.GET("/api/add-puzzle", AddPuzzle)
 	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
+	config.AllowOrigins = []string{"http://localhost:5173", "https://www.blundle.online/"}
 	app.Use(cors.New(config))
 }
 
