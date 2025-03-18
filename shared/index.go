@@ -95,6 +95,7 @@ func AddPuzzle(c *gin.Context) {
 	splitBearerToken := strings.Split(bearerToken, " ")
 
 	if len(splitBearerToken) < 2 {
+		log.Print("unauthorized, missing bearer token")
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "unauthorized, missing bearer token",
 		})
@@ -104,8 +105,9 @@ func AddPuzzle(c *gin.Context) {
 	reqToken := strings.Split(bearerToken, " ")[1]
 
 	if reqToken != os.Getenv("CRON_SECRET") {
+		log.Printf("unauthorized, invalid bearer token, received: %s", reqToken)
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": fmt.Sprintf("unauthorized, invalid bearer token, received: %s", reqToken),
+			"message": "unauthorized, invalid bearer token",
 		})
 		return
 	}
