@@ -113,9 +113,16 @@ func addPuzzle(c *gin.Context) {
 		return
 	}
 
-	// TODO: Fix formatting puzzle for database
+	parsedPuzzle, puzzleErr := json.Marshal(puzzle)
+
+	if puzzleErr != nil {
+		log.Println(puzzleErr)
+		c.JSON(http.StatusInternalServerError, "Error parsing puzzle")
+		return
+	}
+
 	// Add puzzle to db
-	rows, queryErr := db.Query(context.Background(), fmt.Sprintf(`INSERT INTO puzzle (puzzle) VALUES ('%s')`, puzzle))
+	rows, queryErr := db.Query(context.Background(), fmt.Sprintf(`INSERT INTO puzzle (puzzle) VALUES ('%s')`, parsedPuzzle))
 	if queryErr != nil {
 		log.Print(queryErr)
 		c.JSON(http.StatusInternalServerError, "Error querying database")
