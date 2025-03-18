@@ -14,11 +14,11 @@ var (
 
 func init() {
 	app = gin.Default()
+	app.Use(cors.Default())
 	app.GET("/api/daily-puzzle", GetDailyPuzzle)
 	app.GET("/api/add-puzzle", AddPuzzle)
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	app.Use(cors.Default())
 	app.ServeHTTP(w, r)
 }
