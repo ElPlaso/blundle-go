@@ -103,7 +103,7 @@ func AddPuzzle(c *gin.Context) {
 
 	reqToken := strings.Split(bearerToken, " ")[1]
 
-	if reqToken != os.Getenv("AUTH_SECRET") {
+	if reqToken != os.Getenv("CRON_SECRET") {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "unauthorized",
 		})
