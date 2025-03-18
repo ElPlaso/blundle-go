@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
@@ -103,7 +104,26 @@ func getDailyPuzzle(c *gin.Context) {
 }
 
 func addPuzzle(c *gin.Context) {
-	// TODO: Authenticate
+	bearerToken := c.Request.Header.Get("Authorization")
+
+	splitBearerToken := strings.Split(bearerToken, " ")
+
+	if len(splitBearerToken) < 2 {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+		return
+	}
+
+	reqToken := strings.Split(bearerToken, " ")[1]
+
+	if reqToken != os.Getenv("AUTH_SECRET") {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+		return
+	}
+
 	puzzle := getRandomChessPuzzle()
 
 	db, dbErr := connect()
