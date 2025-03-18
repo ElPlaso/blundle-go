@@ -13,8 +13,8 @@ var (
 
 func init() {
 	app = gin.Default()
-	app.GET("/daily-puzzle", GetDailyPuzzle)
-	app.GET("/add-puzzle", AddPuzzle)
+	app.GET("/api/daily-puzzle", GetDailyPuzzle)
+	app.GET("/api/add-puzzle", AddPuzzle)
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
