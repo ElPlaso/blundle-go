@@ -79,7 +79,15 @@ func GetDailyPuzzle(c *gin.Context) {
 			Puzzle: parsedPuzzle,
 		}
 
-		c.JSON(http.StatusOK, puzzleData)
+		puzzleBytes, puzzleStringErr := json.Marshal(puzzleData)
+
+		if puzzleStringErr != nil {
+			log.Println(puzzleErr)
+			c.JSON(http.StatusInternalServerError, "Error parsing puzzle")
+			return
+		}
+
+		c.JSON(http.StatusOK, string(puzzleBytes))
 
 		if count == 1 {
 			return
