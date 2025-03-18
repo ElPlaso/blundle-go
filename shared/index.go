@@ -26,8 +26,8 @@ type puzzleType struct {
 }
 
 type puzzleData struct {
-	Key    string `json:"key"`
-	Puzzle string `json:"puzzle"` // TODO: This should be handled better, done for compatibility with current frontend
+	Key    string     `json:"key"`
+	Puzzle puzzleType `json:"puzzle"`
 }
 
 func GetDailyPuzzle(c *gin.Context) {
@@ -74,17 +74,9 @@ func GetDailyPuzzle(c *gin.Context) {
 			return
 		}
 
-		puzzleBytes, puzzleStringErr := json.Marshal(puzzle)
-
-		if puzzleStringErr != nil {
-			log.Println(puzzleErr)
-			c.JSON(http.StatusInternalServerError, "Error parsing puzzle")
-			return
-		}
-
 		puzzleData := puzzleData{
 			Key:    strconv.Itoa(id),
-			Puzzle: string(puzzleBytes),
+			Puzzle: parsedPuzzle,
 		}
 
 		c.JSON(http.StatusOK, puzzleData)
