@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	. "github.com/ElPlaso/blundle-go/shared"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +16,9 @@ func init() {
 	app = gin.Default()
 	app.GET("/api/daily-puzzle", GetDailyPuzzle)
 	app.GET("/api/add-puzzle", AddPuzzle)
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	app.Use(cors.New(config))
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
