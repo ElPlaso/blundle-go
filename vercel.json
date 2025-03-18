@@ -5,5 +5,11 @@
       "src": "/api/(.*)",
       "dest": "/api/index.go"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/add-puzzle",
+      "schedule": "0 11 * * *"
+    }
   ]
 }
