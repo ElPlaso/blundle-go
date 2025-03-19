@@ -13,7 +13,8 @@ var (
 )
 
 func init() {
-	app = gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	app = gin.New()
 	app.Use(cors.Default())
 	app.GET("/api/daily-puzzle", GetDailyPuzzle)
 	app.GET("/api/add-puzzle", AddPuzzle)
