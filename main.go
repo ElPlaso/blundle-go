@@ -11,7 +11,7 @@ import (
 func main() {
 	envErr := godotenv.Load(".env")
 	if envErr != nil {
-		log.Fatalf("Error loading .env file: %s", envErr)
+		log.Printf("Error loading .env file: %s", envErr)
 	}
 
 	router := gin.Default()
