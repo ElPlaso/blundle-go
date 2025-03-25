@@ -1,6 +1,6 @@
 module github.com/ElPlaso/blundle-go
 
-go 1.24.1
+go 1.24.0
 
 require github.com/gin-gonic/gin v1.10.0
 
@@ -20,8 +20,8 @@ require (
 	github.com/goccy/go-json v0.10.4 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.7.2 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/jackc/pgx/v5 v5.7.2
+	github.com/joho/godotenv v1.5.1
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
