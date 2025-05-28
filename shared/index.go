@@ -89,6 +89,66 @@ func GetDailyPuzzle(c *gin.Context) {
 	c.JSON(http.StatusNotFound, "Puzzle not found")
 }
 
+func GetHistoricPuzzle(c *gin.Context) {
+	db, dbErr := connect()
+
+	if dbErr != nil {
+		log.Print(dbErr)
+		c.JSON(http.StatusInternalServerError, "Failed to connect to database")
+		return
+	}
+
+	// Get random puzzle that is not the daily puzzle
+	rows, queryErr := db.Query(context.Background(), "SELECT * FROM puzzle WHERE id < (SELECT MAX(id) FROM puzzle) ORDER BY RANDOM() LIMIT 1")
+	if queryErr != nil {
+		log.Print(queryErr)
+		c.JSON(http.StatusInternalServerError, "Error querying database")
+		return
+	}
+	defer rows.Close()
+
+	count := 0
+
+	// TODO: Can DRY up
+	for rows.Next() {
+		count++
+
+		var id int
+		var puzzle string
+
+		rowErr := rows.Scan(&id, &puzzle)
+
+		if rowErr != nil {
+			log.Print(rowErr)
+			c.JSON(http.StatusInternalServerError, "Error reading puzzle data")
+			return
+		}
+
+		var parsedPuzzle puzzleType
+
+		puzzleErr := json.Unmarshal([]byte(puzzle), &parsedPuzzle)
+
+		if puzzleErr != nil {
+			log.Println(puzzleErr)
+			c.JSON(http.StatusInternalServerError, "Error parsing puzzle")
+			return
+		}
+
+		puzzleData := puzzleData{
+			Key:    strconv.Itoa(id),
+			Puzzle: parsedPuzzle,
+		}
+
+		c.JSON(http.StatusOK, puzzleData)
+
+		if count == 1 {
+			return
+		}
+	}
+
+	c.JSON(http.StatusNotFound, "Puzzle not found")
+}
+
 func AddPuzzle(c *gin.Context) {
 	bearerToken := c.Request.Header.Get("Authorization")
 
