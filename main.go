@@ -19,6 +19,7 @@ func main() {
 	router := gin.New()
 	router.Use(cors.Default())
 	router.GET("/daily-puzzle", GetDailyPuzzle)
+	router.GET("/historic-puzzle", GetHistoricPuzzle)
 	router.GET("/add-puzzle", AddPuzzle)
 
 	envPort, envPortFound := os.LookupEnv("PORT")
