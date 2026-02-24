@@ -174,6 +174,12 @@ func AddPuzzle(c *gin.Context) {
 
 	puzzle := getRandomChessPuzzle()
 
+	if puzzle == nil {
+		log.Println("Failed to fetch puzzle")
+		c.JSON(http.StatusInternalServerError, "Failed to fetch puzzle")
+		return
+	}
+
 	db, dbErr := connect()
 	if dbErr != nil {
 		log.Print(dbErr)
